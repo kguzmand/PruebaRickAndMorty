@@ -1,0 +1,21 @@
+﻿.transparent-table {
+    background-color: transparent !important;
+    border: 2px solid green !important;
+    
+    thead{
+             background-color: transparent !important;
+             color: white !important;
+    }
+         
+    tbody {
+        tr{
+              background-color: transparent !important;
+              color: white !important;
+          }
+    }
+
+    th, td {
+        color: white !important;
+        border: 1px solid green !important;
+    }
+}

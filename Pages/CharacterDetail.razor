@@ -1,0 +1,34 @@
+﻿@page "/characters/{id:int}"
+@using PruebaRickAndMorty.Services
+@using PruebaRickAndMorty.Models
+@inject CharacterService CharacterService
+@inject NavigationManager NavigationManager
+
+<h3 style="color: #00ff99;">Detalles del Personaje</h3>
+
+@if (character != null)
+{
+    <div style="color: white;">
+        <h4>@character.Name</h4>
+        <p>Status: @character.Status</p>
+        <p>Especie: @character.Species</p>
+        <p>Género: @character.Gender</p>
+        <img src="@character.Image" alt="@character.Name" width="200" />
+        <button style="color: white; background-color: transparent; border: 1px solid white;" @onclick="GoBack">Volver</button>
+    </div>
+}
+
+@code {
+    [Parameter] public int id { get; set; }
+    private CharacterModel character;
+
+    protected override async Task OnInitializedAsync()
+    {
+        character = await CharacterService.GetCharacter(id);
+    }
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo("/characters");
+    }
+}

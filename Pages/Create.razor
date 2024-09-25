@@ -1,0 +1,102 @@
+﻿@page "/characters/create"
+@inject NavigationManager Navigation
+@inject PruebaRickAndMorty.Services.CharacterService CharacterService
+@using PruebaRickAndMorty.Models
+
+<h3 style="color: #00ff99;">Crear Personaje</h3>
+
+@if (submitSuccess)
+{
+    <div class="alert alert-success" style="color: white;">
+        ¡Personaje creado exitosamente!
+    </div>
+}
+
+<EditForm Model="@newCharacter" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary style="color: white;" />
+
+    <div class="mb-3">
+        <label for="name" class="form-label" style="color: white;">Nombre</label>
+        <InputText id="name" class="form-control" @bind-Value="newCharacter.Name" />
+    </div>
+
+    <div class="mb-3">
+        <label for="status" class="form-label" style="color: white;">Estado</label>
+        <InputText id="status" class="form-control" @bind-Value="newCharacter.Status" />
+    </div>
+
+    <div class="mb-3">
+        <label for="species" class="form-label" style="color: white;">Especie</label>
+        <InputText id="species" class="form-control" @bind-Value="newCharacter.Species" />
+    </div>
+
+    <div class="mb-3">
+        <label for="gender" class="form-label" style="color: white;">Género</label>
+        <InputText id="gender" class="form-control" @bind-Value="newCharacter.Gender" />
+    </div>
+
+    <div class="mb-3">
+        <label for="image" class="form-label" style="color: white;">Imagen</label>
+        <img src="@newCharacter.Image" alt="Imagen predeterminada" width="100" />
+        <InputFile id="image" class="form-control" OnChange="HandleImageSelected" />
+    </div>
+
+    <button type="submit" class="btn" style="background-color: #00ff99; color: black;">Crear</button>
+    <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancelar</button>
+</EditForm>
+
+@if (submitError)
+{
+    <div class="alert alert-danger" style="color: white;">
+        Ocurrió un error al crear el personaje. Inténtalo de nuevo.
+    </div>
+}
+
+@code {
+    private CharacterModel newCharacter = new CharacterModel();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Obtener la imagen del personaje con ID 19
+        newCharacter.Image = await CharacterService.GetDefaultImage();
+    }
+
+    private bool submitSuccess = false;
+    private bool submitError = false;
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            await CharacterService.CreateCharacter(newCharacter);
+            submitSuccess = true;
+            submitError = false;
+
+            // Redirigir a la página principal después de un breve retraso
+            await Task.Delay(2000);
+            Navigation.NavigateTo("/characters");
+        }
+        catch (Exception)
+        {
+            submitError = true;
+            submitSuccess = false;
+        }
+    }
+
+    private async Task HandleImageSelected(InputFileChangeEventArgs e)
+    {
+        var file = e.GetMultipleFiles(1).FirstOrDefault();
+        if (file != null)
+        {
+            var buffer = new byte[file.Size];
+            await file.OpenReadStream().ReadAsync(buffer);
+            newCharacter.Image = $"data:{file.ContentType};base64,{Convert.ToBase64String(buffer)}"; // Asignar la imagen en formato base64
+        }
+    }
+
+    private void Cancel()
+    {
+        Navigation.NavigateTo("/characters");
+    }
+}

@@ -1,0 +1,76 @@
+﻿@page "/characters"
+@using PruebaRickAndMorty.Services
+@using PruebaRickAndMorty.Models
+@inject CharacterService CharacterService
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+
+<h3 style="color: #00ff99;">Lista de Personajes</h3>
+
+<button @onclick="CreateCharacter" style="background-color: #00ff99; color: black;">Agregar Personaje</button>
+
+<table class="table transparent-table">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Nombre</th>
+            <th>Status</th>
+            <th>Especie</th>
+            <th>Género</th>
+            <th>Imagen</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var character in characters)
+        {
+            <tr>
+                <td>@character.Id</td>
+                <td>@character.Name</td>
+                <td>@character.Status</td>
+                <td>@character.Species</td>
+                <td>@character.Gender</td>
+                <td><img src="@character.Image" alt="@character.Name" width="50" /></td>
+                <td>
+                    <button @onclick="() => ViewCharacter(character.Id)" style="background-color: #00ff99; color: black;">Ver</button>
+                    <button @onclick="() => EditCharacter(character.Id)" style="background-color: #00ff99; color: black;">Editar</button>
+                    <button @onclick="() => DeleteCharacter(character.Id)" style="background-color: #00ff99; color: black;">Eliminar</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private List<CharacterModel> characters = new List<CharacterModel>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        characters = await CharacterService.GetCharacters();
+    }
+
+    private void ViewCharacter(int id)
+    {
+        NavigationManager.NavigateTo($"/characters/{id}");
+    }
+
+    private void EditCharacter(int id)
+    {
+        NavigationManager.NavigateTo($"/characters/edit/{id}");
+    }
+
+    private async Task DeleteCharacter(int id)
+    {
+        var confirm = await JSRuntime.InvokeAsync<bool>("confirm", "¿Estás seguro de que deseas eliminar este personaje?");
+        if (confirm)
+        {
+            await CharacterService.DeleteCharacter(id);
+            characters = await CharacterService.GetCharacters(); // Actualiza la lista después de la eliminación
+        }
+    }
+
+    private void CreateCharacter()
+    {
+        NavigationManager.NavigateTo("/characters/create");
+    }
+}

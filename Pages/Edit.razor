@@ -1,0 +1,102 @@
+﻿@page "/characters/edit/{id:int}"
+@inject NavigationManager Navigation
+@inject PruebaRickAndMorty.Services.CharacterService CharacterService
+@using PruebaRickAndMorty.Models;
+
+<h3 style="color: #00ff99;">Editar Personaje</h3>
+
+@if (character == null)
+{
+    <p style="color: white;"><em>Cargando...</em></p>
+}
+else
+{
+    <EditForm Model="@character" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary style="color: white;" />
+
+        <div class="mb-3">
+            <label for="name" class="form-label" style="color: white;">Nombre</label>
+            <InputText id="name" class="form-control" @bind-Value="character.Name" />
+        </div>
+
+        <div class="mb-3">
+            <label for="status" class="form-label" style="color: white;">Estado</label>
+            <InputText id="status" class="form-control" @bind-Value="character.Status" />
+        </div>
+
+        <div class="mb-3">
+            <label for="species" class="form-label" style="color: white;">Especie</label>
+            <InputText id="species" class="form-control" @bind-Value="character.Species" />
+        </div>
+
+        <div class="mb-3">
+            <label for="gender" class="form-label" style="color: white;">Género</label>
+            <InputText id="gender" class="form-control" @bind-Value="character.Gender" />
+        </div>
+
+        <div class="mb-3">
+            <label for="image" class="form-label" style="color: white;">Imagen</label>
+            <InputFile id="image" class="form-control" OnChange="HandleImageSelected" />
+            @if (!string.IsNullOrEmpty(character.Image))
+            {
+                <img src="@character.Image" alt="@character.Name" width="100" />
+            }
+        </div>
+
+        <button type="submit" class="btn" style="background-color: #00ff99; color: black;">Guardar Cambios</button>
+        <button type="button" class="btn btn-secondary " @onclick="Cancel" style="color: white;">Cancelar</button>
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public int id { get; set; }
+
+    private CharacterModel character;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            character = await CharacterService.GetCharacter(id);
+        }
+        catch (Exception ex)
+        {
+            // Manejo de error, podrías mostrar un mensaje al usuario
+            Console.WriteLine($"Error al cargar el personaje: {ex.Message}");
+            Navigation.NavigateTo("/");
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            await CharacterService.UpdateCharacter(character);
+            // Redirigir después de actualizar el personaje
+            Navigation.NavigateTo($"/characters/{id}");
+        }
+        catch (Exception ex)
+        {
+            // Manejo de error, podrías mostrar un mensaje al usuario
+            Console.WriteLine("Error al actualizar el personaje: {ex.Message}");
+        }
+    }
+
+    private async Task HandleImageSelected(InputFileChangeEventArgs e)
+    {
+        var file = e.GetMultipleFiles(1).FirstOrDefault();
+        if (file != null)
+        {
+            var buffer = new byte[file.Size];
+            await file.OpenReadStream().ReadAsync(buffer);
+            character.Image = $"data:{file.ContentType};base64,{Convert.ToBase64String(buffer)}"; // Asignar la imagen en formato base64
+        }
+    }
+
+    private void Cancel()
+    {
+        Navigation.NavigateTo("/characters");
+    }
+}

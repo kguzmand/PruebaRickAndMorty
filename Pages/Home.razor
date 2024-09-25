@@ -1,0 +1,53 @@
+﻿@page "/"
+
+<PageTitle>Rick and Morty Universe</PageTitle>
+
+<div class="home text-center">
+    <h1>Bienvenido al Multiverso!</h1>
+    <p>Explora los personajes más locos de cada dimensión.</p>
+
+    <div class="portal-image">
+        <img src="images/MiniPortal.png" alt="Rick and Morty Portal" class="img-fluid" />
+    </div>
+
+    <p class="mt-4">
+        <a href="/characters" class="btn btn-success btn-lg">Ingresa al Portal</a>
+    </p>
+</div>
+
+<style>
+    .home {
+        padding: 2rem;
+        background-color: #121212;
+        color: #00ff99;
+    }
+
+    .home h1 {
+        font-size: 3rem;
+        font-weight: bold;
+    }
+
+    .home p {
+        font-size: 1.25rem;
+        margin-bottom: 2rem;
+    }
+
+    .portal-image img {
+        max-width: 400px;
+        transition: transform 0.5s ease; /* Suaviza la transición */
+    }
+
+    .portal-image img:hover {
+        transform: rotate(360deg); /* Gira la imagen 360 grados */
+    }
+
+    .btn-success {
+        background-color: #00ff99;
+        border-color: #00ff99;
+    }
+
+    .btn-success:hover {
+        background-color: #00e689;
+        border-color: #00e689;
+    }
+</style>
